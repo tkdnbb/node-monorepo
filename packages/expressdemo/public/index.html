@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tokyo International Exhibition Center Navigator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .upload-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .upload-section h2 {
+      margin-top: 0;
+    }
+
+    #uploadStatus {
+      margin-top: 10px;
+      padding: 10px;
+      display: none;
+    }
+
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+
+    .map-container {
+      min-height: 500px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    #mapCanvas {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+    }
+
+    .size-control {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .size-control input[type="range"] {
+      flex: 1;
+    }
+
+    .form-groups {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Tokyo International Exhibition Center Navigator</h1>
+    </header>
+    <main>
+      <div class="upload-section">
+        <h2>Upload Floor Plan</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div class="form-groups">
+            <div class="form-group">
+              <label for="imageInput">Upload Floor Plan Image</label>
+              <input type="file" id="imageInput" name="image" accept="image/*" required
+                title="Select a floor plan image to upload" placeholder="Choose floor plan image">
+            </div>
+            <div class="form-group">
+              <label for="maxContain">Maximum Containment Count:</label>
+              <input type="number" id="maxContain" name="maxContain" min="1" max="10" value="2"
+                title="Set the maximum number of containers per room (1-10)" required>
+            </div>
+          </div>
+          <button type="submit" title="Upload the selected image for processing">Upload and Process</button>
+        </form>
+        <div id="uploadStatus"></div>
+      </div>
+      <div class="map-container">
+        <canvas id="mapCanvas"></canvas>
+        <div class="size-control">
+          <label for="canvasSize">Canvas Size:</label>
+          <input type="range" id="canvasSize" min="50" max="150" value="100"
+            title="Adjust the size of the canvas display" aria-label="Canvas size percentage">
+          <span id="sizeValue">100%</span>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="location-selector">
+          <select id="startPoint" aria-label="Select starting location">
+            <option value="">Select Start Point</option>
+          </select>
+          <select id="endPoint" aria-label="Select destination location">
+            <option value="">Select Destination</option>
+          </select>
+          <button id="findPath" type="button">Find Path</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const fileInput = document.getElementById('imageInput');
+      const maxContainInput = document.getElementById('maxContain');
+      const statusDiv = document.getElementById('uploadStatus');
+
+      formData.append('image', fileInput.files[0]);
+      formData.append('maxContain', maxContainInput.value);
+
+      try {
+        statusDiv.textContent = 'Uploading and processing image...';
+        statusDiv.className = '';
+        statusDiv.style.display = 'block';
+
+        const response = await fetch('/api/process-map', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        statusDiv.textContent = 'Image uploaded and processed successfully!';
+        statusDiv.className = 'success';
+
+        // Reload the graph data and redraw the map
+        if (window.mapNavigator) {
+          await window.mapNavigator.loadGraphData();
+        }
+
+      } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.className = 'error';
+      }
+    });
+
+    // Add canvas size control
+    const canvasSize = document.getElementById('canvasSize');
+    const sizeValue = document.getElementById('sizeValue');
+    const mapCanvas = document.getElementById('mapCanvas');
+    const defaultWidth = 1000;
+    const defaultHeight = 1000;
+
+    canvasSize.addEventListener('input', function () {
+      const scale = this.value / 100;
+      mapCanvas.style.width = `${defaultWidth * scale}px`;
+      mapCanvas.style.height = `${defaultHeight * scale}px`;
+      sizeValue.textContent = `${this.value}%`;
+    });
+
+    // Set initial size
+    mapCanvas.style.width = `${defaultWidth}px`;
+    mapCanvas.style.height = `${defaultHeight}px`;
+  </script>
+</body>
+
+</html>
