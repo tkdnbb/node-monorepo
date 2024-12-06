@@ -1,23 +1,15 @@
 import request from 'supertest';
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import router from '../graphRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { jest, describe, it, expect, beforeEach, beforeAll, afterAll } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterAll } from '@jest/globals';
 import fs from 'fs';
 import { config } from '../../config/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Create unique test directories
-const testId = Date.now();
-const testConfig = {
-  uploadDir: path.join(config.uploadDir, `test-${testId}`),
-  tempDir: path.join(config.tempDir, `test-${testId}`),
-  dataDir: path.join(config.dataDir, `test-${testId}`)
-};
 
 // Mock GraphService
 jest.mock('../../services/graphService.js', () => ({
@@ -76,55 +68,20 @@ interface NodeGrapherMock {
   saveRoad: jest.Mock<(imagePath: string, outputPath: string, maxContainCount?: number, numX?: number) => Promise<GraphData | undefined>>;
 }
 
-// Mock upload middleware
-jest.mock('../../middleware/upload.js', () => ({
-  upload: {
-    single: () => (req: Request, res: Response, next: Function) => {
-      const tempFileName = `temp-${Date.now()}-test-image.png`;
-      const tempFilePath = path.join(testConfig.tempDir, tempFileName);
-
-      fs.copyFileSync(
-        path.join(__dirname, '../../../public/img/psnet.jpg'),
-        tempFilePath
-      );
-
-      req.file = {
-        fieldname: 'file',
-        originalname: 'test-image.png',
-        encoding: '7bit',
-        mimetype: 'image/png',
-        destination: testConfig.tempDir,
-        filename: tempFileName,
-        path: tempFilePath,
-        size: fs.statSync(tempFilePath).size,
-        stream: fs.createReadStream(tempFilePath),
-        buffer: fs.readFileSync(tempFilePath)
-      };
-      next();
-    }
-  }
-}));
-
 const app = express();
 app.use(express.json());
 app.use('/', router);
 
-// Ensure test directories exist
-beforeAll(() => {
-  Object.values(testConfig).forEach(dir => {
-    fs.mkdirSync(dir, { recursive: true });
-  });
-});
-
-// Clean up test directories after all tests
+// Clean up images inside upload directory after all tests
 afterAll(() => {
-  Object.values(testConfig).forEach(dir => {
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-    } catch (error) {
-      console.warn(`Warning: Could not remove directory ${dir}:`, error);
+  try {
+    const files = fs.readdirSync(config.uploadDir);
+    for (const file of files) {
+      fs.unlinkSync(path.join(config.uploadDir, file));
     }
-  });
+  } catch (error) {
+    console.warn(`Warning: Could not remove files in ${config.uploadDir}:`, error);
+  }
 });
 
 describe('Graph Routes', () => {
