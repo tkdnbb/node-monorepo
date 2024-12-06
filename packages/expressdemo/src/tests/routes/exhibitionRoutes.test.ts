@@ -9,7 +9,7 @@ import fs from 'fs';
 // Setup routes
 app.use('/api/exhibitions', exhibitionRoutes);
 
-describe.skip('Exhibition Center Routes', () => {
+describe('Exhibition Center Routes', () => {
   const testImagePath = path.join(process.cwd(), 'public', 'uploads', 'floorplans', 'test-floor-plan.png');
 
   // Create test image buffer
@@ -134,7 +134,6 @@ describe.skip('Exhibition Center Routes', () => {
         .field('name', 'Updated Center')
         .field('levels[]', '2F')
         .attach('floorPlans', testImagePath);
-
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('name', 'Updated Center');
       expect(response.body.floorPlans[0]).toHaveProperty('level', '2F');
@@ -168,6 +167,7 @@ describe.skip('Exhibition Center Routes', () => {
     it('should delete an exhibition center', async () => {
       const response = await request(app).delete(`/api/exhibitions/${testCenter._id}`);
 
+      console.log(response);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message', 'Exhibition center deleted successfully');
 

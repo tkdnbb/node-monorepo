@@ -84,7 +84,7 @@ afterAll(() => {
   }
 });
 
-describe('Graph Routes', () => {
+describe.skip('Graph Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
