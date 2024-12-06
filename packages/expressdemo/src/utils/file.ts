@@ -20,6 +20,7 @@ export async function findDuplicateImage(uploadDir: string, md5Hash: string): Pr
   
   for (const file of files) {
     const filePath = path.join(uploadDir, file);
+    if (!/.+[jpg|png]$/.test(filePath)) continue
     const fileHash = await calculateMD5(filePath);
     
     if (fileHash === md5Hash) {

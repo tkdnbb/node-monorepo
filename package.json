@@ -9,6 +9,8 @@
     "flow-client": "npm run dev --workspace=flow-client",
     "ImageGrapher": "npm run start --workspace=imagegrapher",
     "test": "npm run test --workspaces --if-present",
-    "test:expressdemo": "npm run test --workspace=expressdemo"
+    "test:expressdemo": "npm run test --workspace=expressdemo",
+    "test:flow-client": "npm run test --workspace=flow-client",
+    "test:imagegrapher": "npm run test --workspace=imagegrapher"
   }
 }

@@ -5,6 +5,7 @@ export default {
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^(\\.{1,2}/.*)\\.ts$': '$1'
   },
   transform: {
     '^.+\\.tsx?$': [
@@ -15,7 +16,7 @@ export default {
     ],
   },
   rootDir: '.',
-  testMatch: ['<rootDir>/src/tests/**/*.test.ts'],
-  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
-  verbose: true
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts', '<rootDir>/src/tests/**/*.test.ts'],
+  verbose: true,
+  moduleDirectories: ['node_modules', 'src']
 };

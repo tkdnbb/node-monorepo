@@ -1,6 +1,6 @@
 import express from 'express';
-import { GraphController } from '../controllers/graphController.js';
-import { upload } from '../middleware/upload.js';
+import { GraphController } from '../controllers/graphController';
+import { upload } from '../middleware/upload';
 
 const router = express.Router();
 

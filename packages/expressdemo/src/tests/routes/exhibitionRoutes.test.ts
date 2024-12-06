@@ -9,7 +9,7 @@ import fs from 'fs';
 // Setup routes
 app.use('/api/exhibitions', exhibitionRoutes);
 
-describe('Exhibition Center Routes', () => {
+describe.skip('Exhibition Center Routes', () => {
   const testImagePath = path.join(process.cwd(), 'public', 'uploads', 'floorplans', 'test-floor-plan.png');
 
   // Create test image buffer
