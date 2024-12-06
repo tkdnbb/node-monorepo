@@ -104,6 +104,31 @@ const graphData = await GraphService.processFullGraph(imagePath, maxContain);
 const roadGraph = await GraphService.processRoadGraph(imagePath, maxContain);
 ```
 
+## Development Container
+
+This project includes a development container configuration for VS Code, which provides a consistent development environment across different machines. The container is configured with:
+
+- Node.js 22 runtime environment
+- Essential build tools and libraries for canvas support
+- Pre-configured VS Code extensions:
+  - ESLint for code linting
+  - Prettier for code formatting
+
+### Prerequisites
+
+To use the development container:
+1. Install [Docker](https://www.docker.com/get-started) on your machine
+2. Install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension in VS Code
+
+### Getting Started with Dev Container
+
+1. Clone the repository
+2. Open the project in VS Code
+3. When prompted, click "Reopen in Container" or run the "Dev Containers: Reopen in Container" command from the Command Palette
+4. The container will build and install all dependencies automatically
+
+The development container ensures all developers work with the same environment and dependencies, including system-level libraries required for packages like `canvas`.
+
 ## License
 
 This project is licensed under the BSD 2-Clause License - see the [LICENSE](LICENSE) file for details.
