@@ -155,7 +155,7 @@ Expected Response:
 ## Notes
 - Replace `65f1234567890abcdef12345` with actual exhibition center IDs from your database
 - Replace `/path/to/floor1.jpg` with actual paths to your floor plan images
-- Supported image formats: JPG, PNG, WebP
+- Supported image formats: JPG, PNG
 - Maximum file size: 5MB per image
 - The server will store uploaded images in the `public/uploads/floorplans` directory
 - Image URLs in responses are relative to the server's base URL
@@ -188,7 +188,7 @@ The API may return the following error responses:
 
 // 400 Bad Request (File type error)
 {
-  "error": "Invalid file type. Only JPG, PNG and WebP are allowed."
+  "error": "Invalid file type. Only JPG and PNG are allowed."
 }
 
 // 500 Internal Server Error
