@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, Activi
 import useGraphData from './hooks/useGraphData';
 import useFileUpload from './hooks/useFileUpload';
 import usePathFinding from './hooks/usePathFinding';
-import { fetchGraphData, fetchRoadGraphData } from './services/api';
 import MapView from './components/MapView';
 import PathFindingForm from './components/PathFindingForm';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -14,6 +13,8 @@ export default function App() {
     setActiveTab,
     loading: graphLoading,
     error: graphError,
+    loadGraphData,
+    loadRoadGraphData,
   } = useGraphData();
 
   const {
@@ -28,9 +29,9 @@ export default function App() {
     activeTab,
     onUploadSuccess: (data) => {
       if (activeTab === 'full') {
-        fetchGraphData();
+        loadGraphData();
       } else {
-        fetchRoadGraphData();
+        loadRoadGraphData();
       }
     },
   });

@@ -19,7 +19,7 @@ const getApiUrl = () => {
   if (Platform.OS === 'android') {
     return env.API_URL_ANDROID || 'http://10.0.2.2:3000/api';
   }
-  
+
   return env.API_URL_DEFAULT || 'http://192.168.3.168:3000/api';
 };
 
@@ -37,26 +37,22 @@ const apiClient = axios.create({
 export const uploadImage = async (uri: string, endpoint: 'process-map' | 'process-road', maxContain?: number) => {
   try {
     const formData = new FormData();
-    const filename = uri.split('/').pop() || 'image.jpg';
-    
-    // Handle file URI differently for web and native platforms
-    if (Platform.OS === 'web') {
-      formData.append('image', {
-        uri,
-        name: filename,
-        type: 'image/jpeg',
-      } as any);
+    const filename = 'image.png';
+    const type = 'image/png';
+
+    if (uri.startsWith('data:image')) {
+      const blob = await fetch(uri).then(res => res.blob());
+      formData.append('image', blob, filename);
     } else {
-      // For native platforms, we need to read the file first
       const fileInfo = await FileSystem.getInfoAsync(uri);
       if (!fileInfo.exists) {
         throw new Error('File does not exist');
       }
-      
+
       formData.append('image', {
-        uri: uri,
+        uri: fileInfo.uri,
         name: filename,
-        type: 'image/jpeg',
+        type,
       } as any);
     }
 
