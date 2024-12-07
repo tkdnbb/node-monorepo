@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import useGraphData from './hooks/useGraphData';
 import useFileUpload from './hooks/useFileUpload';
 import usePathFinding from './hooks/usePathFinding';
 import MapView from './components/MapView';
 import PathFindingForm from './components/PathFindingForm';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import clsx from 'clsx';
 
 export default function App() {
   const {
@@ -45,54 +46,56 @@ export default function App() {
 
   const error = uploadError || graphError || pathError;
   const loading = uploadLoading || graphLoading;
-
+  const fullTabClassName = clsx(classNames.tab, {[classNames.activeTab]: activeTab === 'full'}, {'bg-gray-300': activeTab === 'road'});
+  const roadTabClassName = clsx(classNames.tab, {[classNames.activeTab]: activeTab === 'road'}, {'bg-gray-300': activeTab === 'full'});
+  console.log(fullTabClassName, "---", roadTabClassName);
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Tokyo International Exhibition Center Navigator</Text>
+    <GestureHandlerRootView className={classNames.container}>
+      <ScrollView className={classNames.scrollView}>
+        <View className={classNames.header}>
+          <Text className={classNames.title}>Tokyo International Exhibition Center Navigator</Text>
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.tabContainer}>
+        <View className={classNames.content}>
+          <View className={classNames.tabContainer}>
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'full' && styles.activeTab]}
+              className={fullTabClassName}
               onPress={() => setActiveTab('full')}
             >
-              <Text style={[styles.tabText, activeTab === 'full' && styles.activeTabText]}>
+              <Text className={clsx(classNames.tabText, {[classNames.activeTabText]: activeTab === 'full'})}>
                 Full Graph
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'road' && styles.activeTab]}
+              className={roadTabClassName}
               onPress={() => setActiveTab('road')}
             >
-              <Text style={[styles.tabText, activeTab === 'road' && styles.activeTabText]}>
+              <Text className={clsx(classNames.tabText, {[classNames.activeTabText]: activeTab === 'road'})}>
                 Road Graph
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.uploadSection}>
-            <Text style={styles.sectionTitle}>Upload Floor Plan</Text>
+          <View className={classNames.uploadSection}>
+            <Text className={classNames.sectionTitle}>Upload Floor Plan</Text>
             <TouchableOpacity
-              style={styles.button}
+              className={classNames.button}
               onPress={pickImage}
               disabled={uploadLoading}
             >
-              <Text style={styles.buttonText}>Select Image</Text>
+              <Text className={classNames.buttonText}>Select Image</Text>
             </TouchableOpacity>
 
             {imageUri && (
-              <View style={styles.imagePreview}>
+              <View className={classNames.imagePreview}>
                 <Text>Image selected</Text>
               </View>
             )}
 
-            <View style={styles.inputContainer}>
+            <View className={classNames.inputContainer}>
               <Text>Max Contain:</Text>
               <TextInput
-                style={styles.input}
+                className={classNames.input}
                 value={maxContain.toString()}
                 onChangeText={(text) => setMaxContain(parseInt(text) || 2)}
                 keyboardType="numeric"
@@ -101,11 +104,11 @@ export default function App() {
             </View>
 
             <TouchableOpacity
-              style={styles.button}
+              className={classNames.button}
               onPress={() => handleUpload()}
               disabled={!imageUri || uploadLoading}
             >
-              <Text style={styles.buttonText}>Upload</Text>
+              <Text className={classNames.buttonText}>Upload</Text>
             </TouchableOpacity>
 
             {loading && (
@@ -113,12 +116,12 @@ export default function App() {
             )}
 
             {error && (
-              <Text style={styles.errorText}>{error}</Text>
+              <Text className={classNames.errorText}>{error}</Text>
             )}
           </View>
 
           {currentData && (
-            <View style={styles.mapContainer}>
+            <View className={classNames.mapContainer}>
               <MapView
                 graphData={currentData}
                 selectedPath={selectedPath}
@@ -138,101 +141,26 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  content: {
-    padding: 20,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  tab: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: '#e0e0e0',
-    alignItems: 'center',
-    marginHorizontal: 5,
-    borderRadius: 5,
-  },
-  activeTab: {
-    backgroundColor: '#007AFF',
-  },
-  tabText: {
-    color: '#333',
-  },
-  activeTabText: {
-    color: '#fff',
-  },
-  uploadSection: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 15,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  imagePreview: {
-    marginVertical: 10,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  input: {
-    marginLeft: 10,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    width: 100,
-  },
-  errorText: {
-    color: 'red',
-    marginTop: 10,
-  },
-  mapContainer: {
-    height: 850,
-    marginTop: 20,
-  },
-  loadingContainer: {
-    height: 600,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+// 使用 nativewind 重写样式
+const classNames = {
+  container: 'flex-1',
+  scrollView: 'flex-1 bg-gray-100',
+  header: 'p-5 bg-white border-b border-gray-300',
+  title: 'text-2xl font-bold text-gray-800',
+  content: 'p-5',
+  tabContainer: 'flex-row mb-5',
+  tab: 'flex-1 p-2.5 items-center mx-1.25 rounded',
+  activeTab: 'bg-blue-500',
+  tabText: 'text-gray-800',
+  activeTabText: 'text-white',
+  uploadSection: 'bg-white p-5 rounded-lg mb-5',
+  sectionTitle: 'text-lg font-semibold mb-3.75',
+  button: 'bg-blue-500 p-3 rounded items-center my-2.5',
+  buttonText: 'text-white text-lg',
+  imagePreview: 'my-2.5 p-2.5 bg-gray-200 rounded',
+  inputContainer: 'flex-row items-center my-2.5',
+  input: 'ml-2.5 p-2 border border-gray-300 rounded w-25',
+  errorText: 'text-red-500 mt-2.5',
+  mapContainer: 'h-212.5 mt-5',
+  loadingContainer: 'h-150 justify-center items-center',
+};
