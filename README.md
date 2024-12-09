@@ -47,7 +47,7 @@ A TypeScript client implementation for interacting with the Express demo server.
 
 ### flow-client
 
-A client application implementing flow-based functionality.
+A client application implementing functionalities of retrieving graph data from the expressdemo server and visualizing it using the NGraph visualization library.
 
 ## Getting Started
 
