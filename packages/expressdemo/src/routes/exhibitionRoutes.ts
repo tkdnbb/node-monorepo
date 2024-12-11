@@ -2,6 +2,8 @@ import express from 'express';
 import { upload } from '../middleware/uploadMiddleware.js';
 import { ExhibitionService } from '../services/exhibitionService.js';
 import { FileService } from '../services/fileService.js';
+import cache from '../middleware/cache.js';
+import redisClient from '../config/redis.js';
 
 const router = express.Router();
 
@@ -17,38 +19,9 @@ export const cleanupInterval = setInterval(() => ExhibitionService.cleanupOrphan
 // Run cleanup on server start
 ExhibitionService.cleanupOrphanedFiles();
 
-// Create a new exhibition center with floor plans
-router.post('/', upload.array('floorPlans'), async (req, res) => {
-  const uploadedFiles: Express.Multer.File[] = [];
+// Get all exhibition centers (cached for 5 minutes)
+router.get('/', cache(300), async (req, res) => {
   try {
-    console.log('Received POST request');
-    console.log('Body:', req.body);
-    console.log('Files:', req.files);
-    
-    const { name, levels } = req.body;
-    const files = req.files as Express.Multer.File[];
-    uploadedFiles.push(...files);
-    
-    if (!Array.isArray(levels) || levels.length !== files.length) {
-      throw new Error('Levels array must match the number of uploaded files');
-    }
-
-    const exhibitionCenter = await ExhibitionService.create({ name, files, levels });
-    res.status(201).json(exhibitionCenter);
-  } catch (error) {
-    await FileService.cleanupFiles(uploadedFiles);
-    if (error instanceof Error) {
-      res.status(400).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'An unexpected error occurred' });
-    }
-  }
-});
-
-// Get all exhibition centers
-router.get('/', async (req, res) => {
-  try {
-    console.log('Received GET request');
     const centers = await ExhibitionService.getAll();
     res.json(centers);
   } catch (error) {
@@ -57,10 +30,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific exhibition center
-router.get('/:id', async (req, res) => {
+// Get a specific exhibition center (cached for 5 minutes)
+router.get('/:id', cache(300), async (req, res) => {
   try {
-    console.log('Received GET request for ID:', req.params.id);
     const center = await ExhibitionService.getById(req.params.id);
     if (!center) {
       res.status(404).json({ error: 'Exhibition center not found' });
@@ -73,14 +45,39 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update an exhibition center
-router.put('/:id', upload.array('floorPlans'), async (req, res): Promise<void> => {
+// Create a new exhibition center
+router.post('/', upload.array('floorPlans'), async (req, res) => {
   const uploadedFiles: Express.Multer.File[] = [];
   try {
-    console.log('Received PUT request for ID:', req.params.id);
-    console.log('Body:', req.body);
-    console.log('Files:', req.files);
+    const { name } = req.body;
+    const levels = Array.isArray(req.body.levels) ? req.body.levels : [req.body.levels];
+    const files = req.files as Express.Multer.File[];
+    uploadedFiles.push(...files);
     
+    if (!Array.isArray(levels) || levels.length !== files.length) {
+      throw new Error('Levels array must match the number of uploaded files');
+    }
+
+    const exhibitionCenter = await ExhibitionService.create({ name, files, levels });
+    
+    // Invalidate the list cache
+    await redisClient.del('cache:/api/exhibitions');
+    
+    res.status(201).json(exhibitionCenter);
+  } catch (error) {
+    await FileService.cleanupFiles(uploadedFiles);
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  }
+});
+
+// Update an exhibition center
+router.put('/:id', upload.array('floorPlans'), async (req, res) => {
+  const uploadedFiles: Express.Multer.File[] = [];
+  try {
     const { name, levels } = req.body;
     const files = req.files as Express.Multer.File[];
     uploadedFiles.push(...files);
@@ -90,6 +87,13 @@ router.put('/:id', upload.array('floorPlans'), async (req, res): Promise<void> =
     }
 
     const center = await ExhibitionService.update(req.params.id, { name, files, levels });
+    
+    // Invalidate both list and specific item cache
+    await Promise.all([
+      redisClient.del('cache:/api/exhibitions'),
+      redisClient.del(`cache:/api/exhibitions/${req.params.id}`)
+    ]);
+    
     res.json(center);
   } catch (error) {
     await FileService.cleanupFiles(uploadedFiles);
@@ -106,10 +110,16 @@ router.put('/:id', upload.array('floorPlans'), async (req, res): Promise<void> =
 });
 
 // Delete an exhibition center
-router.delete('/:id', async (req, res): Promise<void> => {
+router.delete('/:id', async (req, res) => {
   try {
-    console.log('Received DELETE request for ID:', req.params.id);
     await ExhibitionService.delete(req.params.id);
+    
+    // Invalidate both list and specific item cache
+    await Promise.all([
+      redisClient.del('cache:/api/exhibitions'),
+      redisClient.del(`cache:/api/exhibitions/${req.params.id}`)
+    ]);
+    
     res.json({ message: 'Exhibition center deleted successfully' });
   } catch (error) {
     console.error('Error deleting exhibition center:', error);
