@@ -9,7 +9,7 @@ export default defineConfig({
       babel: {
         presets: [
           ['@babel/preset-react', { runtime: 'automatic' }],
-          '@babel/preset-typescript',
+          '@babel/preset-flow',
         ],
         plugins: [
           ['babel-plugin-transform-flow-strip-types', { requireDirective: true }]

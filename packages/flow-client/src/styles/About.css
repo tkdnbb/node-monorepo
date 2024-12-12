@@ -1,0 +1,50 @@
+.about-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.about-container h1 {
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.about-container p {
+  line-height: 1.6;
+  color: #34495e;
+  margin-bottom: 1.5rem;
+}
+
+.about-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.about-container li {
+  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+  border-left: 3px solid #3498db;
+  padding-left: 1rem;
+  color: #34495e;
+}
+
+.tech-stack {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.tech-stack h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.tech-stack ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+} 
