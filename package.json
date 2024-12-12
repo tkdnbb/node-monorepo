@@ -12,5 +12,9 @@
     "test:expressdemo": "npm run test --workspace=expressdemo",
     "test:flow-client": "npm run test --workspace=flow-client",
     "test:imagegrapher": "npm run test --workspace=imagegrapher"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   }
 }

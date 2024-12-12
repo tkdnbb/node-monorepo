@@ -1,0 +1,28 @@
+{
+  "name": "grapher-three",
+  "version": "1.0.0",
+  "description": "Floor plan to glTF converter for React Three Fiber",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "start": "ts-node test.ts",
+    "convert": "ts-node test.ts"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^3.10.0",
+    "sharp": "^0.33.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.11.0",
+    "@types/sharp": "^0.32.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.3.3"
+  }
+}
