@@ -3,6 +3,7 @@
 .*/node_modules/.*
 .*/dist/.*
 .*\.tsx?
+.*\.gltf$
 
 [include]
 ./src/.*\.jsx?$

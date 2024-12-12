@@ -30,7 +30,7 @@ const Slider = (React.forwardRef<Props, HTMLElement>(
       </SliderPrimitive.Root>
     );
   }
-): React$AbstractComponent<Props, HTMLElement>);
+): React$AbstractComponent<Props>);
 
 Slider.displayName = SliderPrimitive.Root.displayName;
 

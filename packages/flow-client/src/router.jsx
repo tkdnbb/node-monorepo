@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-router';
 import Home from './components/Home';
 import './styles/About.css';
+import FloorPlanViewer from "./pages/FloorPlanViewer";
 
 // $FlowFixMe: QueryClient constructor accepts config options
 const queryClient = new QueryClient({
@@ -48,18 +49,21 @@ const About = (): React$Node => (
 const RootLayout = (): React$Node => (
   <QueryClientProvider client={queryClient}>
     <div>
-      <nav style={{ padding: '1rem', borderBottom: '1px solid #eee' }}>
+      <nav className="space-x-4 text-[#3498db]" style={{ padding: '1rem', borderBottom: '1px solid #eee' }}>
         <Link 
           to="/"
-          style={{ marginRight: '1rem', textDecoration: 'none', color: '#3498db' }}
         >
           Home
         </Link>
         <Link 
           to="/about"
-          style={{ textDecoration: 'none', color: '#3498db' }}
         >
           About
+        </Link>
+        <Link 
+          to="/floorplan-viewer"
+        >
+          Floorplan Viewer
         </Link>
       </nav>
       <Outlet />
@@ -84,10 +88,16 @@ const aboutRoute = createRoute({
   component: About,
 });
 
-// Create the route tree
-const routeTree = rootRoute.addChildren([indexRoute, aboutRoute]);
+const floorplanViewerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/floorplan-viewer',
+  component: FloorPlanViewer,
+});
 
-// Create and configure the router
+// Create the route tree
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, floorplanViewerRoute]);
+
+// $FlowFixMe: createRouter accepts a route tree
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
